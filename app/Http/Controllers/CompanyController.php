@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreCompanyRequest;
+use App\Http\Requests\UpdateCompanyRequest;
+use App\Models\Company;
+use App\Repository\Contracts\CompanyRepositoryInterface;
+
+class CompanyController extends Controller
+{
+    private $companyRepository;
+
+    public function __construct(CompanyRepositoryInterface $companyRepository)
+    {
+        $this->companyRepository = $companyRepository;
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $companies = $this->companyRepository->getAllCompanies();
+
+        return view('company.index', compact('companies'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('company.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreCompanyRequest $request)
+    {   
+        $validated = $request->validated();
+        $filename = now()->format('YmdHis') . '.' . $request->file('logo')->extension();
+        $validated['logo'] = $request->file('logo')->storeAs('company', $filename, 'public');
+        // dd($validated);
+
+        $this->companyRepository->createCompany($validated);
+
+        return redirect()->route('companies.index');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Company $company)
+    {
+        return view('company.show', compact('company'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Company $company)
+    {
+        return view('company.edit', compact('company'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateCompanyRequest $request, Company $company)
+    {
+        $validated = $request->validated();
+        
+        if ($request->hasFile('logo')) {
+            $filename = now()->format('YmdHis') . '.' . $request->file('logo')->extension();
+            $validated['logo'] = $request->file('logo')->storeAs('company', $filename, 'public');
+        }
+
+        $this->companyRepository->updateCompany($validated, $company->id);
+
+        return redirect()->route('companies.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Company $company)
+    {
+        $this->companyRepository->deleteCompany($company->id);
+
+        return redirect()->route('companies.index');
+    }
+}
