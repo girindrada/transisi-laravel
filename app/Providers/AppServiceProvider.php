@@ -9,6 +9,7 @@ use App\Repository\Contracts\EmployeeRepositoryInterface;
 use App\Repository\EmployeeRepository;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin', function ($user) {
             return $user->role === 'admin';
         });
+
+        // Gunakan Bootstrap 5 untuk pagination
+        Paginator::useBootstrapFive();
     }
 }

@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ImportEmployeeRequest;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
+use App\Imports\EmployeeImport;
 use App\Models\Company;
 use App\Repository\Contracts\CompanyRepositoryInterface;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel; 
 
 class CompanyController extends Controller
 {
@@ -94,5 +99,26 @@ class CompanyController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Export company details and employees to PDF.
+     * Didnt use snappy because it has some issues in Mac, so I use dompdf instead
+     */
+    public function exportPdf(Company $company)
+    {
+        $employees = $company->employees;
+
+        $pdf = Pdf::loadView('company.export-pdf', compact('company', 'employees'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download("employees-{$company->name}.pdf");
+    }
+
+    public function importEmployees(ImportEmployeeRequest $request, Company $company)
+    {
+        Excel::import(new EmployeeImport($company->id), $request->file('file'));
+
+        return redirect()->route('companies.show', $company)->with('success', 'Employees berhasil diimport.');
     }
 }

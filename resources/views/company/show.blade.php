@@ -6,11 +6,38 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="d-flex justify-content-end align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <a href="{{ route('companies.index') }}" class="btn btn-secondary">
                     {{ __('Back to List') }}
                 </a>
+
+                <a href="{{ route('companies.export-pdf', $company->id) }}" class="btn btn-outline-success me-2">
+                    {{ __('Export PDF') }}
+                </a>
             </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <label> Mass Insert Employees Data from Excel Here:</label>
+                    <form action="{{ route('companies.import-xlsx', $company) }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2 pt-2">
+                        @csrf
+                        <input type="file" name="file" class="form-control form-control-sm @error('file') is-invalid @enderror">
+                        @error('file')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+
+                        <button type="submit" class="btn btn-dark btn-sm">Import</button>
+                    </form>
+                </div>
+
+                <div class="card-body d-flex align-items-center gap-2">
+                    <label>Template Excel: </label>
+                    <a href="{{ asset('templates/employees_import_template.xlsx') }}" class="btn btn-info btn-sm">
+                        Download
+                    </a>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">{{ __('Detail Company') }}</div>
 
