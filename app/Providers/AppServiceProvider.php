@@ -7,6 +7,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\Contracts\CompanyRepositoryInterface;
 use App\Repository\Contracts\EmployeeRepositoryInterface;
 use App\Repository\EmployeeRepository;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('admin', function ($user) {
+            return $user->role === 'admin';
+        });
     }
 }

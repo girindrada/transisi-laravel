@@ -46,7 +46,7 @@ class CompanyController extends Controller
 
         $this->companyRepository->createCompany($validated);
 
-        return redirect()->route('companies.index');
+        return redirect()->route('companies.index')->with('success', 'Company berhasil ditambahkan.');
     }
 
     /**
@@ -79,7 +79,7 @@ class CompanyController extends Controller
 
         $this->companyRepository->updateCompany($validated, $company->id);
 
-        return redirect()->route('companies.index');
+        return redirect()->route('companies.index')->with('success', 'Company berhasil diperbarui.');
     }
 
     /**
@@ -87,8 +87,12 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
-        $this->companyRepository->deleteCompany($company->id);
+        try {
+            $this->companyRepository->deleteCompany($company->id);
 
-        return redirect()->route('companies.index');
+            return redirect()->route('companies.index')->with('success', 'Company berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }

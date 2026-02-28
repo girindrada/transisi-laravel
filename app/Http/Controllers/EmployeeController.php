@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
+use App\Repository\Contracts\CompanyRepositoryInterface;
 use App\Repository\Contracts\EmployeeRepositoryInterface;
 
 class EmployeeController extends Controller
 {
     private $employeeRepository;
+    private $companyRepository;
 
-    public function __construct(EmployeeRepositoryInterface $employeeRepository)
+    public function __construct(EmployeeRepositoryInterface $employeeRepository, CompanyRepositoryInterface $companyRepository)
     {
         $this->employeeRepository = $employeeRepository;
+        $this->companyRepository = $companyRepository;
     }
     /**
      * Display a listing of the resource.
@@ -30,7 +33,9 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view('employee.create');
+       $companies = $this->companyRepository->getAllCompanies();
+
+       return view('employee.create', compact('companies'));
     }
 
     /**
@@ -40,7 +45,7 @@ class EmployeeController extends Controller
     {
         $this->employeeRepository->createEmployee($request->validated());
 
-        return redirect()->route('employees.index');
+        return redirect()->route('employees.index')->with('success', 'Employee berhasil ditambahkan.');
     }
 
     /**
@@ -48,7 +53,9 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        return view('employee.show', compact('employee'));
+        $companies = $this->companyRepository->getAllCompanies();
+
+        return view('employee.show', compact('employee', 'companies'));
     }
 
     /**
@@ -56,7 +63,9 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        return view('employee.edit', compact('employee'));
+        $companies = $this->companyRepository->getAllCompanies();
+
+        return view('employee.edit', compact('employee', 'companies'));
     }
 
     /**
@@ -66,7 +75,7 @@ class EmployeeController extends Controller
     {
         $this->employeeRepository->updateEmployee($request->validated(), $employee->id);
 
-        return redirect()->route('employees.index');
+        return redirect()->route('employees.index')->with('success', 'Employee berhasil diperbarui.');
     }
 
     /**
@@ -76,6 +85,6 @@ class EmployeeController extends Controller
     {
         $this->employeeRepository->deleteEmployee($employee->id);
 
-        return redirect()->route('employees.index');
+        return redirect()->route('employees.index')->with('success', 'Employee berhasil dihapus.');
     }
 }

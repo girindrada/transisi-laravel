@@ -35,6 +35,10 @@ class CompanyRepository implements CompanyRepositoryInterface
     {
         $company = Company::findOrFail($id);
 
+        if ($company->employees()->exists()) {
+            throw new \Exception('Gagal menghapus Company karena masih memiliki employee.');
+        }
+
         return $company->delete();
     }
 }
