@@ -23,5 +23,4 @@ Route::middleware('auth')->group(function () {
     Route::post('companies/{company}/import-employees', [CompanyController::class, 'importEmployees'])->name('companies.import-xlsx');
 });
 
-
-
+Route::get('api/companies', [CompanyController::class, 'select2'])->name('api.companies');

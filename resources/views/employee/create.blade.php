@@ -12,23 +12,13 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('employees.store') }}">
                         @csrf
-
+                        <!-- Company dropdown with ajax and select2 -->
                         <div class="row mb-3">
                             <label for="company" class="col-md-4 col-form-label text-md-end">{{ __('Company') }}</label>
-
                             <div class="col-md-6">
-                                <select name="company_id" id="company" class="form-control @error('company_id') is-invalid @enderror">
-                                    <option value="">-- Select Company --</option>
-                                    @foreach($companies as $company)
-                                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
-                                    @endforeach
-                                </select>
+                                <select name="company_id" id="company" class="form-control">
 
-                                @error('company_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                                </select>
                             </div>
                         </div>
 
@@ -78,3 +68,41 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function () {
+        console.log('jquery ready...');
+
+        $('#company').select2({
+            placeholder: '-- Select Company --',
+            ajax: {
+                url: '{{ route('api.companies') }}',
+                dataType: 'json',
+                delay: 250, // delay before sending new request
+                data: function (params) {
+                    // send search term and page number to the server 
+                    return {
+                        search: params.term,
+                        page: params.page || 1,
+                    };
+                },
+                processResults: function (data) {
+                    console.log('API response:', data.data);
+                    return {
+                        results: data.data.map(function (company) {
+                            return { 
+                                id: company.id, 
+                                text: company.name 
+                            };
+                        }),
+                        pagination: {
+                            more: data.current_page < data.last_page,
+                        },
+                    };
+                },
+            },
+        });
+    });
+</script>
+@endpush

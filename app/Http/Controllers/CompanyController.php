@@ -121,4 +121,12 @@ class CompanyController extends Controller
 
         return redirect()->route('companies.show', $company)->with('success', 'Employees berhasil diimport.');
     }
+
+    public function select2(Request $request)
+    {
+        $search = $request->search;
+        $companies = Company::when($search, fn($query) => $query->where('name', 'like', "%{$search}%"))->paginate(10);
+
+        return response()->json($companies);
+    }
 }
